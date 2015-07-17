@@ -21,7 +21,7 @@ router.delete('/quizes/:quizId(\\d+)', quizController.destroy);
 
 /* GET credits page. */
 router.get('/author', function(req, res){
-	res.render('author');
+	res.render('author',{errors: []});
 });
 
 
