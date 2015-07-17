@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var partials = require('express-partials'); //MW para las vistas parciales
+var methodOverride = require('method-override'); //para hacer el override de post a put (edicion de preguntas)
 var routes = require('./routes/index');
 
 var app = express();
@@ -23,6 +24,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
+app.use(methodOverride('_method'))
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
