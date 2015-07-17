@@ -6,7 +6,6 @@ exports.load = function(req, res, next, quizId){
 	models.Quiz.findById(quizId).then(
 		function(quiz){
 			if(quiz){
-				console.log("BD: " +quiz.pregunta + ", " + quiz.respuesta + ", " + quiz.tema +" FIN.");
 				req.quiz = quiz;
 				next();
 			} else {
