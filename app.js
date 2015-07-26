@@ -30,6 +30,35 @@ app.use(session());
 app.use(methodOverride('_method'))
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+app.use(function(req, res, next) {
+  if(!!req.session && !!req.session.user){
+    console.log('ENTRA AL BORRADO DE SESSION, user: '+req.session.user.username);
+    if(!req.session.tiempoInactividad){ //si el tiempoInactividad es nulo
+      req.session.tiempoInactividad = (new Date()).getTime();
+      console.log('Inactividad:' + req.session.tiempoInactividad);
+    } else {
+      var actividadAnterior = req.session.tiempoInactividad;
+      req.session.tiempoInactividad = (new Date()).getTime();
+      console.log('Anterior Inactividad:' + actividadAnterior);
+      console.log('Nueva Inactividad:' + req.session.tiempoInactividad);
+      var totalSegundos = (Number(req.session.tiempoInactividad) - Number(actividadAnterior))/1000;
+      if(totalSegundos > 120){
+        console.log('Mas de 2 minutos');
+        delete req.session.tiempoInactividad;
+        delete req.session.user;
+      }else{
+        console.log('Menos de 2 minutos');
+      }
+      
+      console.log('Tiempo: ' + totalSegundos + ' segundos');
+    }
+  }
+  // Hacer visible req.session en las vistas
+  //res.locals.session = req.session;
+  next();
+});
+
 // Helpers dinamicos:
 app.use(function(req, res, next) {
 
@@ -41,26 +70,35 @@ app.use(function(req, res, next) {
   if (!req.path.match(/\/login|\/logout|\/user/)) {
     req.session.redir = req.path;
   }
+/*
+  if(!!req.session && !!req.session.user){
+    console.log('ENTRA AL BORRADO DE SESSION, user: '+req.session.user.username);
+    if(!req.session.tiempoInactividad){ //si el tiempoInactividad es nulo
+      req.session.tiempoInactividad = (new Date()).getTime();
+      console.log('Inactividad:' + req.session.tiempoInactividad);
+    } else {
+      var actividadAnterior = req.session.tiempoInactividad;
+      req.session.tiempoInactividad = (new Date()).getTime();
+      console.log('Anterior Inactividad:' + actividadAnterior);
+      console.log('Nueva Inactividad:' + req.session.tiempoInactividad);
+      var totalSegundos = (Number(req.session.tiempoInactividad) - Number(actividadAnterior))/1000;
+      if(totalSegundos > 120){
+        console.log('Mas de 2 minutos');
+        delete req.session.tiempoInactividad;
+        delete req.session.user;
+      }else{
+        console.log('Menos de 2 minutos');
+      }
+      
+      console.log('Tiempo: ' + totalSegundos + ' segundos');
+    }
+  }
+  */
 
   // Hacer visible req.session en las vistas
   res.locals.session = req.session;
   next();
 });
-
-
-//Helpers dinámicos:
-/*
-app.use(function(req,res,next){
-    //guardar path en session.redir para despues de hacer login
-    if(!req.path.match(/\/login|\/logout/)){
-        req.session.redir(req.path);
-    }
-
-    //Hacer visible req.session en las vistas
-    res.locals.session = req.session;
-    next();
-});
-*/
 
 app.use('/', routes);
 
